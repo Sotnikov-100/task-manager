@@ -4,18 +4,38 @@ from django.urls import path
 from tasks.views import (
     ProfileView,
     SignUpView,
+    TaskCreateView,
+    TaskDeleteView,
+    TaskDetailView,
+    TaskListView,
+    TaskUpdateView,
     index,
 )
 
 app_name = "tasks"
 
+
 urlpatterns = [
-    path("", index, name="index"),
-    path("signup/", SignUpView.as_view(), name="signup"),
-    path("profile/", ProfileView.as_view(), name="profile"),
+    path(
+        "",
+        index,
+        name="index"
+    ),
+    path(
+        "signup/",
+        SignUpView.as_view(),
+        name="signup"
+    ),
+    path(
+        "profile/",
+        ProfileView.as_view(),
+        name="profile"
+    ),
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="registration/login.html"),
+        auth_views.LoginView.as_view(
+            template_name="registration/login.html"
+        ),
         name="login"
     ),
     path(
@@ -36,5 +56,28 @@ urlpatterns = [
             template_name="registration/password_change_done.html"
         ),
         name="password_change_done"
+    ),
+    path(
+        "tasks/",
+        TaskListView.as_view(),
+        name="task-list"
+    ),
+    path(
+        "tasks/create/",
+        TaskCreateView.as_view(),
+        name="task-create"),
+    path("tasks/<int:pk>/",
+         TaskDetailView.as_view(),
+         name="task-detail"
+         ),
+    path(
+        "tasks/<int:pk>/update/",
+        TaskUpdateView.as_view(),
+        name="task-update"
+    ),
+    path(
+        "tasks/<int:pk>/delete/",
+        TaskDeleteView.as_view(),
+        name="task-delete"
     ),
 ]

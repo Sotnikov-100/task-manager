@@ -1,7 +1,11 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
-from tasks.models import Position, Worker
+from tasks.models import (
+    Position,
+    Task,
+    Worker,
+)
 
 
 class WorkerCreationForm(UserCreationForm):
@@ -14,3 +18,13 @@ class WorkerCreationForm(UserCreationForm):
     class Meta:
         model = Worker
         fields = ("username", "email", "position", "password1", "password2")
+
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ["title", "description", "deadline", "priority", "task_type", "assignees"]
+        widgets = {
+            "assignees": forms.CheckboxSelectMultiple,
+            "deadline": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+        }

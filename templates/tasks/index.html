@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="list-group">
                     {% for task in assigned_tasks %}
-                    <a href="{% url 'task-detail' task.id %}" class="list-group-item list-group-item-action">
+                    <a href="{% url 'tasks:task-detail' task.id %}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <h6 class="mb-1">{{ task.title }}</h6>
                             <small class="text-{% if task.priority == 'URGENT' %}danger{% elif task.priority == 'HIGH' %}warning{% else %}success{% endif %}">

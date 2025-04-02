@@ -4,10 +4,16 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import generic
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 
+from tasks.forms import TaskForm, WorkerCreationForm
 from tasks.models import Task, Worker
-
-from .forms import WorkerCreationForm
 
 
 @login_required
@@ -61,3 +67,44 @@ class ProfileView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
         context["tasks"] = Task.objects.filter(assignees=self.request.user)
         return context
+
+
+class TaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    template_name = "tasks/task_list.html"
+    paginate_by = 10
+    context_object_name = "tasks"
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        # Фільтрація для поточного користувача (опціонально)
+        return queryset.filter(assignees=self.request.user)
+
+
+class TaskDetailView(LoginRequiredMixin, DetailView):
+    model = Task
+    template_name = "tasks/task_detail.html"
+
+
+class TaskCreateView(LoginRequiredMixin, CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = "tasks/task_form.html"
+    success_url = reverse_lazy("tasks:task-list")
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user  # Автоматично встановити автора
+        return super().form_valid(form)
+
+
+class TaskUpdateView(LoginRequiredMixin, UpdateView):
+    model = Task
+    fields = ["title", "description", "deadline", "priority", "task_type", "assignees", "is_completed"]
+    template_name = "tasks/task_form.html"
+    success_url = reverse_lazy("tasks:task-list")
+
+
+class TaskDeleteView(LoginRequiredMixin, DeleteView):
+    model = Task
+    template_name = "tasks/task_confirm_delete.html"
+    success_url = reverse_lazy("tasks:task-list")

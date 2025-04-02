@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Task List</h2>
+    <a href="{% url 'tasks:task-create' %}" class="btn btn-primary mb-3">
+        <i class="bi bi-plus-circle"></i> Create New Task
+    </a>
+
+    <div class="list-group">
+        {% for task in tasks %}
+        <a href="{% url 'tasks:task-detail' task.pk %}" class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+                <h5>{{ task.title }}</h5>
+                <span class="badge bg-{% if task.priority == 'URGENT' %}danger{% elif task.priority == 'HIGH' %}warning{% else %}success{% endif %}">
+                    {{ task.get_priority_display }}
+                </span>
+            </div>
+            <small>Due: {{ task.deadline|date:"Y-m-d H:i" }}</small>
+        </a>
+        {% empty %}
+        <div class="alert alert-info">No tasks found.</div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагінація -->
+    {% include "includes/pagination.html" %}
+</div>
+{% endblock %}

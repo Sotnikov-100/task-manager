@@ -21,15 +21,14 @@
         <i class="bi bi-house-door me-2"></i>
         Dashboard
       </a>
-    </li>
     <li>
-      <a href="#" class="nav-link text-white">
+      <a href="{% url 'tasks:task-list' %}" class="nav-link text-white">
         <i class="bi bi-list-task me-2"></i>
         All Tasks
       </a>
     </li>
     <li>
-      <a href="#" class="nav-link text-white">
+      <a href="{% url 'tasks:task-create' %}" class="nav-link text-white">
         <i class="bi bi-plus-circle me-2"></i>
         New Task
       </a>
