@@ -35,21 +35,31 @@
       </a>
     </li>
     <li>
-      <a href="#" class="nav-link text-white">
+      <a href="{% url 'tasks:profile' %}" class="nav-link text-white">
         <i class="bi bi-person-circle me-2"></i>
         My Profile
       </a>
     </li>
   </ul>
   <hr>
-  <div class="dropdown">
-    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-       data-bs-toggle="dropdown">
-      <i class="bi bi-person-circle me-2"></i>
-      <strong>{{ user.username }}</strong>
-    </a>
-    <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-      <li><a class="dropdown-item" href="#">Sign out</a></li>
-    </ul>
-  </div>
+  {% if user.is_authenticated %}
+    <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+           data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle me-2"></i>
+            <strong>{{ user.username }}</strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+            <li><a class="dropdown-item" href="{% url 'tasks:profile' %}">Profile</a></li>
+            <li>
+                <form action="{% url 'tasks:logout' %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item">Sign out</button>
+                </form>
+            </li>
+        </ul>
+    </div>
+  {% else %}
+    <a href="{% url 'tasks:login' %}" class="btn btn-outline-light">Login</a>
+  {% endif %}
 </div>

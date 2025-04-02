@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ worker.username }}</h5>
+                    <p class="card-text">
+                        Position: {{ worker.position|default:"Not specified" }}
+                    </p>
+                    <a href="{% url 'tasks:password_change' %}"
+                       class="btn btn-warning">
+                        Change Password
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Assigned Tasks ({{ tasks.count }})
+                </div>
+                <div class="card-body">
+                    {% for task in tasks %}
+                    <div class="alert
+                        {% if task.is_completed %}alert-success{% else %}alert-info{% endif %}">
+                        <h5>{{ task.title }}</h5>
+                        <p>Priority: {{ task.get_priority_display }}</p>
+                        <small>Due: {{ task.deadline|date:"Y-m-d H:i" }}</small>
+                    </div>
+                    {% empty %}
+                    <div class="alert alert-warning">No tasks assigned.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

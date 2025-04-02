@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="col-md-6 mx-auto mt-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <h2 class="card-title mb-4">Login</h2>
+            <form method="post" action="{% url 'tasks:login' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                  <label>
+                    <input type="text" name="username" class="form-control" required>
+                  </label>
+                </div>
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">Password</label>
+                  <label>
+                    <input type="password" name="password" class="form-control" required>
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
