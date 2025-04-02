@@ -1,0 +1,7 @@
+[lint]
+select = ["E", "F", "I", "UP", "DJ"]
+ignore = ["E501"]
+per-file-ignores = {"migrations/*" = ["F841"]}
+
+[lint.isort]
+known-first-party = ["tasks"]
