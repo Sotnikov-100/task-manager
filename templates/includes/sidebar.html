@@ -1,0 +1,55 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-dark text-white" style="width: 280px; height: 100vh;">
+  <a href="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">
+    <span class="fs-4">Task Manager</span>
+  </a>
+
+  <form method="get" action="" class="mb-3">
+    <div class="input-group">
+      <label>
+        <input type="text" class="form-control" name="q" placeholder="Search tasks...">
+      </label>
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </form>
+
+  <hr>
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a href="{% url 'tasks:index' %}" class="nav-link active">
+        <i class="bi bi-house-door me-2"></i>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link text-white">
+        <i class="bi bi-list-task me-2"></i>
+        All Tasks
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link text-white">
+        <i class="bi bi-plus-circle me-2"></i>
+        New Task
+      </a>
+    </li>
+    <li>
+      <a href="#" class="nav-link text-white">
+        <i class="bi bi-person-circle me-2"></i>
+        My Profile
+      </a>
+    </li>
+  </ul>
+  <hr>
+  <div class="dropdown">
+    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+       data-bs-toggle="dropdown">
+      <i class="bi bi-person-circle me-2"></i>
+      <strong>{{ user.username }}</strong>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+      <li><a class="dropdown-item" href="#">Sign out</a></li>
+    </ul>
+  </div>
+</div>
