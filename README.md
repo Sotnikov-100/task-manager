@@ -1,28 +1,31 @@
-Task Manager for IT Teams
-Django-based task management system for developers, designers, PMs, and QA specialists
+**Task Manager for IT Teams**
+**Django-based task management system for developers, designers, PMs, and QA specialists**
+
 
 ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)  
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)  
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)  
 
-📌 About the Project
+**📌 About the Project**
 
 This task manager is designed for IT teams that need a simple yet powerful system to organize workflows. It allows users to:
 ✅ Create and assign tasks to team members (developers, designers, PMs, QAs).
 ✅ Track status (done/pending) and deadlines.
 ✅ Categorize tasks using tags (e.g., bug, refactoring, design).
 ✅ Work within projects and teams.
+
 --- 
 
-⚙️ Technologies
+**⚙️ Technologies**
 
 Backend: Django (MVT, ORM, Authentication)
 Frontend: Bootstrap 5, Crispy Forms
 Database: SQLite (scalable to PostgreSQL)
 Additional features: Pagination, Search, User Roles, Session Management
+
 --- 
 
-🔧 Features
+**🔧 Features**
 
 Authentication: Registration, login/logout (django.contrib.auth).
 Task CRUD: Add, edit, delete, and mark tasks as completed.
@@ -31,12 +34,12 @@ Pagination: Split task lists into pages.
 User profiles: View assigned/completed tasks.
 --- 
 
-### **📂 Database Structure**  
-![DB Diagram](./docs/diagram_db.svg)  
-![DB Diagram](https://dbdiagram.io/67eec2524f7afba18443e9e1)
+**📂 Database Structure**  
+![DB Diagram](./docs/diagram_db.svg)
 
 --- 
-🚀 How to Deploy?
+
+**🚀 How to Deploy?**
 
 1. **Clone the repository**:
    ```bash
@@ -70,14 +73,14 @@ User profiles: View assigned/completed tasks.
    python manage.py runserver
    ```
 
-
 --- 
-💡 Why Is This Project Worth Attention?
+
+**💡 Why Is This Project Worth Attention?**
 
 Ready to use: Easy to deploy, intuitive interface.
 Flexible: Can be extended (API, notifications, etc.).
 Portfolio-worthy: Demonstrates Django, Bootstrap, and ORM skills.
---- 
-👉 PRs and ideas are welcome!
 
----
+--- 
+
+**👉 PRs and ideas are welcome!**
