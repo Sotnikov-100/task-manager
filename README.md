@@ -1,4 +1,4 @@
-**Task Manager for IT Teams**
+### **Task Manager for IT Teams**
 **Django-based task management system for developers, designers, PMs, and QA specialists**
 
 
@@ -6,41 +6,38 @@
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)  
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)  
 
-**📌 About the Project**
-
-This task manager is designed for IT teams that need a simple yet powerful system to organize workflows. It allows users to:
-✅ Create and assign tasks to team members (developers, designers, PMs, QAs).
-✅ Track status (done/pending) and deadlines.
-✅ Categorize tasks using tags (e.g., bug, refactoring, design).
-✅ Work within projects and teams.
-
---- 
-
-**⚙️ Technologies**
-
-Backend: Django (MVT, ORM, Authentication)
-Frontend: Bootstrap 5, Crispy Forms
-Database: SQLite (scalable to PostgreSQL)
-Additional features: Pagination, Search, User Roles, Session Management
+### **📌 About the Project**  
+This **task manager** is designed for IT teams that need a simple yet powerful system to organize workflows. It allows users to:  
+✅ **Create and assign tasks** to team members (developers, designers, PMs, QAs).  
+✅ **Track status** (done/pending) and deadlines.  
+✅ **Categorize tasks** using tags (e.g., `bug`, `refactoring`, `design`).  
+✅ **Work within projects and teams**
 
 --- 
 
-**🔧 Features**
+### **⚙️ Technologies**  
+- **Backend:** Django (MVT, ORM, Authentication)  
+- **Frontend:** Bootstrap 5, Crispy Forms  
+- **Database:** SQLite (scalable to PostgreSQL)  
+- **Additional features:** Pagination, Search, User Roles, Session Management  
 
-Authentication: Registration, login/logout (django.contrib.auth).
-Task CRUD: Add, edit, delete, and mark tasks as completed.
-Filtering: Search by title, tags, or status.
-Pagination: Split task lists into pages.
-User profiles: View assigned/completed tasks.
+---
+
+### **🔧 Features**  
+- **Authentication:** Registration, login/logout (`django.contrib.auth`).  
+- **Task CRUD:** Add, edit, delete, and mark tasks as completed.  
+- **Filtering:** Search by title, tags, or status.  
+- **Pagination:** Split task lists into pages.  
+- **User profiles:** View assigned/completed tasks.  
 
 --- 
 
-**📂 Database Structure**  
+### **📂 Database Structure**  
 ![DB Diagram](./docs/diagram_db.svg)
 
 --- 
 
-**🚀 How to Deploy?**
+### **🚀 How to Deploy?**
 
 1. **Clone the repository**:
    ```bash
@@ -76,11 +73,10 @@ User profiles: View assigned/completed tasks.
 
 --- 
 
-**💡 Why Is This Project Worth Attention?**
-
-Ready to use: Easy to deploy, intuitive interface.
-Flexible: Can be extended (API, notifications, etc.).
-Portfolio-worthy: Demonstrates Django, Bootstrap, and ORM skills.
+### **💡 Why Is This Project Worth Attention?**  
+- **Ready to use:** Easy to deploy, intuitive interface.  
+- **Flexible:** Can be extended (API, notifications, etc.).  
+- **Portfolio-worthy:** Demonstrates Django, Bootstrap, and ORM skills.
 
 --- 
 
