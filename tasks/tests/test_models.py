@@ -1,9 +1,10 @@
+from datetime import timedelta
+
 from django.test import TestCase
-from django.core.exceptions import ValidationError
-from django.contrib.auth import get_user_model
-from datetime import datetime, timedelta
 from django.utils import timezone
-from tasks.models import Position, TaskType, Worker, Task
+
+from tasks.models import Position, Task, TaskType, Worker
+
 
 class PositionModelTest(TestCase):
     def test_position_creation(self):
@@ -16,6 +17,7 @@ class PositionModelTest(TestCase):
         with self.assertRaises(Exception):
             Position.objects.create(name="Designer")
 
+
 class TaskTypeModelTest(TestCase):
     def test_task_type_creation(self):
         task_type = TaskType.objects.create(name="Bug")
@@ -26,6 +28,7 @@ class TaskTypeModelTest(TestCase):
         TaskType.objects.create(name="Feature")
         with self.assertRaises(Exception):
             TaskType.objects.create(name="Feature")
+
 
 class WorkerModelTest(TestCase):
     def setUp(self):
@@ -61,6 +64,7 @@ class WorkerModelTest(TestCase):
             email="nopos@example.com"
         )
         self.assertIsNone(worker.position)
+
 
 class TaskModelTest(TestCase):
     def setUp(self):
