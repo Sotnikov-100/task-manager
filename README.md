@@ -32,6 +32,7 @@ Task CRUD: Add, edit, delete, and mark tasks as completed.
 Filtering: Search by title, tags, or status.
 Pagination: Split task lists into pages.
 User profiles: View assigned/completed tasks.
+
 --- 
 
 **📂 Database Structure**  
