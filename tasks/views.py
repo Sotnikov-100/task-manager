@@ -1,15 +1,13 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.views import generic
 from django.views.generic import (
     CreateView,
     DeleteView,
     DetailView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
@@ -17,40 +15,40 @@ from tasks.forms import TaskForm, WorkerCreationForm
 from tasks.models import Task, Worker
 
 
-@login_required
-def index(request):
-    if request.user.is_authenticated:
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = "tasks/index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
         assigned_tasks = Task.objects.filter(
-            assignees=request.user
+            assignees=user
         ).order_by("-deadline")[:5]
 
-        total_tasks = Task.objects.filter(assignees=request.user).count()
+        total_tasks = Task.objects.filter(assignees=user).count()
         completed_tasks = Task.objects.filter(
-            assignees=request.user,
+            assignees=user,
             is_completed=True
         ).count()
 
         overdue_tasks = Task.objects.filter(
-            assignees=request.user,
+            assignees=user,
             deadline__lt=timezone.now(),
             is_completed=False
         ).count()
-    else:
-        assigned_tasks = []
-        total_tasks = 0
-        completed_tasks = 0
-        overdue_tasks = 0
 
-    context = {
-        "assigned_tasks": assigned_tasks,
-        "total_tasks": total_tasks,
-        "completed_tasks": completed_tasks,
-        "overdue_tasks": overdue_tasks,
-    }
-    return render(request, "tasks/index.html", context)
+        context.update({
+            "assigned_tasks": assigned_tasks,
+            "total_tasks": total_tasks,
+            "completed_tasks": completed_tasks,
+            "overdue_tasks": overdue_tasks,
+        })
+
+        return context
 
 
-class SignUpView(generic.CreateView):
+class SignUpView(CreateView):
     form_class = WorkerCreationForm
     template_name = "registration/signup.html"
     success_url = reverse_lazy("tasks:login")

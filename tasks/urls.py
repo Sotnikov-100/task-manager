@@ -2,6 +2,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from tasks.views import (
+    IndexView,
     ProfileView,
     SignUpView,
     TaskCreateView,
@@ -9,7 +10,6 @@ from tasks.views import (
     TaskDetailView,
     TaskListView,
     TaskUpdateView,
-    index,
 )
 
 app_name = "tasks"
@@ -18,7 +18,7 @@ app_name = "tasks"
 urlpatterns = [
     path(
         "",
-        index,
+        IndexView.as_view(),
         name="index"
     ),
     path(
