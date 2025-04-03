@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -55,7 +56,7 @@ class SignUpView(generic.CreateView):
     success_url = reverse_lazy("tasks:login")
 
 
-class ProfileView(LoginRequiredMixin, generic.DetailView):
+class ProfileView(LoginRequiredMixin, DetailView):
     model = Worker
     template_name = "profile.html"
     context_object_name = "worker"
@@ -72,13 +73,36 @@ class ProfileView(LoginRequiredMixin, generic.DetailView):
 class TaskListView(LoginRequiredMixin, ListView):
     model = Task
     template_name = "tasks/task_list.html"
-    paginate_by = 10
+    paginate_by = 5
     context_object_name = "tasks"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["task_priority_choices"] = Task.PriorityChoices.choices
+        return context
+
     def get_queryset(self):
-        queryset = super().get_queryset()
-        # Фільтрація для поточного користувача (опціонально)
-        return queryset.filter(assignees=self.request.user)
+        queryset = super().get_queryset().filter(assignees=self.request.user)
+
+        search = self.request.GET.get("search")
+        status = self.request.GET.get("status")
+        priority = self.request.GET.get("priority")
+
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
+
+        if status == "completed":
+            queryset = queryset.filter(is_completed=True)
+        elif status == "active":
+            queryset = queryset.filter(is_completed=False)
+
+        if priority:
+            queryset = queryset.filter(priority=priority)
+
+        return queryset.order_by("-deadline")
 
 
 class TaskDetailView(LoginRequiredMixin, DetailView):
@@ -108,3 +132,5 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = "tasks/task_confirm_delete.html"
     success_url = reverse_lazy("tasks:task-list")
+
+
