@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="col-md-6 mx-auto mt-5">
+  <div class="card shadow">
+    <div class="card-body p-4">
+      <h2 class="card-title mb-4 text-center">Login</h2>
+
+      <form method="post" action="{% url 'tasks:login' %}" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="id_username" class="form-label">Username</label>
+          <input type="text"
+                 name="username"
+                 id="id_username"
+                 class="form-control"
+                 required
+                 autofocus>
+        </div>
+
+        <div class="mb-4">
+          <label for="id_password" class="form-label">Password</label>
+          <input type="password"
+                 name="password"
+                 id="id_password"
+                 class="form-control"
+                 required>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">
+          Login
+        </button>
+
+        <div class="d-flex flex-column text-center">
+          <a href="{% url 'password_reset' %}" class="text-decoration-none mb-2">
+            Forgot password?
+          </a>
+          <span class="text-muted">Don't have an account?
+            <a href="{% url 'tasks:signup' %}" class="text-decoration-none">
+              Sign up
+            </a>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
