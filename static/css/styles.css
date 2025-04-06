@@ -1,0 +1,7 @@
+body {
+    min-height: 100vh;
+}
+
+.sidebar {
+    transition: all 0.3s;
+}

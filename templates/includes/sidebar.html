@@ -1,0 +1,53 @@
+<div class="d-flex flex-column flex-shrink-0 p-3 bg-dark text-white" style="width: 280px; height: 100vh;">
+  <a href="/" class="d-flex align-items-center mb-3 text-white text-decoration-none">
+    <span class="fs-4">Task Manager</span>
+  </a>
+
+  <hr>
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a href="{% url 'tasks:index' %}" class="nav-link active">
+        <i class="bi bi-house-door me-2"></i>
+        Dashboard
+      </a>
+    <li>
+      <a href="{% url 'tasks:task-list' %}" class="nav-link text-white">
+        <i class="bi bi-list-task me-2"></i>
+        All Tasks
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'tasks:task-create' %}" class="nav-link text-white">
+        <i class="bi bi-plus-circle me-2"></i>
+        New Task
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'tasks:profile' %}" class="nav-link text-white">
+        <i class="bi bi-person-circle me-2"></i>
+        My Profile
+      </a>
+    </li>
+  </ul>
+  <hr>
+  {% if user.is_authenticated %}
+    <div class="dropdown">
+      <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+         data-bs-toggle="dropdown">
+        <i class="bi bi-person-circle me-2"></i>
+        <strong>{{ user.username }}</strong>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+        <li><a class="dropdown-item" href="{% url 'tasks:profile' %}">Profile</a></li>
+        <li>
+          <form action="{% url 'tasks:logout' %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="dropdown-item">Sign out</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  {% else %}
+    <a href="{% url 'tasks:login' %}" class="btn btn-outline-light">Login</a>
+  {% endif %}
+</div>

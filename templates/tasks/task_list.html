@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load query_tags %}
+
+{% block content %}
+  <div class="container">
+    <h2 class="mb-4">Task List</h2>
+
+    <form method="get" class="mb-4">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <input type="text" name="search" class="form-control"
+                 placeholder="Search..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-3">
+          <select name="status" class="form-select">
+            <option value="">All Tasks</option>
+            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option>
+            <option value="completed" {% if request.GET.status == "completed" %}selected{% endif %}>Completed</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select name="priority" class="form-select">
+            <option value="">All Priorities</option>
+            {% for value, name in task_priority_choices %}
+              <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+      </div>
+    </form>
+
+    <a href="{% url 'tasks:task-create' %}" class="btn btn-primary mb-3">
+      <i class="bi bi-plus-circle"></i> Create New Task
+    </a>
+
+    <div class="list-group">
+      {% for task in tasks %}
+        <a href="{% url 'tasks:task-detail' task.pk %}" class="list-group-item list-group-item-action">
+          <div class="d-flex justify-content-between">
+            <h5>{{ task.title }}</h5>
+            <span class="badge bg-{% if task.priority == "URGENT" %}danger{% elif task.priority == "HIGH" %}warning{% else %}success{% endif %}">
+              {{ task.get_priority_display }}
+            </span>
+          </div>
+          <small>Due: {{ task.deadline|date:"Y-m-d H:i" }}</small>
+        </a>
+      {% empty %}
+        <div class="alert alert-info">No tasks found.</div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% include "includes/pagination.html" %}
+  </div>
+{% endblock %}

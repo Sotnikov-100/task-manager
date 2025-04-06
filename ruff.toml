@@ -1,0 +1,13 @@
+[lint]
+select = ["E", "F", "I", "UP", "DJ"]
+ignore = ["E501"]
+
+[lint.isort]
+known-first-party = ["tasks"]
+
+[lint.per-file-ignores]
+"migrations/*" = ["F841"]
+"**/*.html" = ["ALL"]
+"**/templates/**" = ["ALL"]
+"**/static/**" = ["ALL"]
+"**/migrations/**" = ["ALL"]
