@@ -11,9 +11,7 @@ User = get_user_model()
 class IndexViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="testuser",
-            password="testpass123",
-            email="test@example.com"
+            username="testuser", password="testpass123", email="test@example.com"
         )
         self.client.login(username="testuser", password="testpass123")
         self.task_type = TaskType.objects.create(name="Bug")
@@ -39,9 +37,7 @@ class IndexViewTest(TestCase):
 class TaskListViewTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="user",
-            password="pass",
-            email="user@example.com"
+            username="user", password="pass", email="user@example.com"
         )
         self.client.login(username="user", password="pass")
         self.task_type = TaskType.objects.create(name="Feature")
@@ -69,16 +65,12 @@ class TaskListViewTest(TestCase):
 class TaskCreateUpdateDeleteTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
-            username="admin",
-            password="adminpass",
-            email="admin@example.com"
+            username="admin", password="adminpass", email="admin@example.com"
         )
         self.client.login(username="admin", password="adminpass")
         self.task_type = TaskType.objects.create(name="Refactoring")
         self.worker = User.objects.create_user(
-            username="worker",
-            password="workerpass",
-            email="worker@example.com"
+            username="worker", password="workerpass", email="worker@example.com"
         )
 
     def test_task_creation(self):
@@ -127,6 +119,8 @@ class TaskCreateUpdateDeleteTest(TestCase):
             priority="MEDIUM",
             task_type=self.task_type,
         )
-        response = self.client.post(reverse("tasks:task-delete", kwargs={"pk": task.pk}))
+        response = self.client.post(
+            reverse("tasks:task-delete", kwargs={"pk": task.pk})
+        )
         self.assertRedirects(response, reverse("tasks:task-list"))
         self.assertEqual(Task.objects.count(), 0)

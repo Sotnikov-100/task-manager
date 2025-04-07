@@ -5,21 +5,12 @@ from tasks.models import Position, Task, TaskType, Worker
 
 @admin.register(Worker)
 class WorkerAdmin(admin.ModelAdmin):
-    list_display = (
-        "username",
-        "email",
-        "position"
-    )
+    list_display = ("username", "email", "position")
 
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = (
-        "title",
-        "priority",
-        "task_type",
-        "deadline"
-    )
+    list_display = ("title", "priority", "task_type", "deadline")
     filter_horizontal = ("assignees",)
 
 

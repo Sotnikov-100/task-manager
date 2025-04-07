@@ -37,7 +37,7 @@ class WorkerModelTest(TestCase):
             username="testuser",
             password="testpass123",
             email="test@example.com",
-            position=self.position
+            position=self.position,
         )
 
     def test_worker_creation(self):
@@ -52,16 +52,12 @@ class WorkerModelTest(TestCase):
     def test_worker_email_unique(self):
         with self.assertRaises(Exception):
             Worker.objects.create_user(
-                username="anotheruser",
-                password="pass123",
-                email="test@example.com"
+                username="anotheruser", password="pass123", email="test@example.com"
             )
 
     def test_worker_without_position(self):
         worker = Worker.objects.create_user(
-            username="noposition",
-            password="testpass",
-            email="nopos@example.com"
+            username="noposition", password="testpass", email="nopos@example.com"
         )
         self.assertIsNone(worker.position)
 
@@ -71,14 +67,10 @@ class TaskModelTest(TestCase):
         self.position = Position.objects.create(name="Developer")
         self.task_type = TaskType.objects.create(name="Refactoring")
         self.user = Worker.objects.create_user(
-            username="creator",
-            password="password",
-            email="creator@example.com"
+            username="creator", password="password", email="creator@example.com"
         )
         self.assignee = Worker.objects.create_user(
-            username="assignee",
-            password="assignee_pass",
-            email="assignee@example.com"
+            username="assignee", password="assignee_pass", email="assignee@example.com"
         )
         self.task = Task.objects.create(
             title="Fix Bugs",
@@ -86,7 +78,7 @@ class TaskModelTest(TestCase):
             deadline=timezone.now() + timedelta(days=3),  # Використання timezone.now()
             priority=Task.PriorityChoices.HIGH,
             task_type=self.task_type,
-            created_by=self.user
+            created_by=self.user,
         )
         self.task.assignees.add(self.assignee)
 
@@ -107,7 +99,7 @@ class TaskModelTest(TestCase):
             title="New Task",
             description="Test default priority",
             deadline=timezone.now(),
-            created_by=self.user
+            created_by=self.user,
         )
         self.assertEqual(task.priority, Task.PriorityChoices.MEDIUM)
 
@@ -116,7 +108,7 @@ class TaskModelTest(TestCase):
             title="Invalid Deadline",
             description="Test past deadline",
             deadline=timezone.now() - timedelta(days=1),
-            created_by=self.user
+            created_by=self.user,
         )
         task.full_clean()
 

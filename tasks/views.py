@@ -23,28 +23,23 @@ class IndexView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
 
-        assigned_tasks = Task.objects.filter(
-            assignees=user
-        ).order_by("-deadline")[:5]
+        assigned_tasks = Task.objects.filter(assignees=user).order_by("-deadline")[:5]
 
         total_tasks = Task.objects.filter(assignees=user).count()
-        completed_tasks = Task.objects.filter(
-            assignees=user,
-            is_completed=True
-        ).count()
+        completed_tasks = Task.objects.filter(assignees=user, is_completed=True).count()
 
         overdue_tasks = Task.objects.filter(
-            assignees=user,
-            deadline__lt=timezone.now(),
-            is_completed=False
+            assignees=user, deadline__lt=timezone.now(), is_completed=False
         ).count()
 
-        context.update({
-            "assigned_tasks": assigned_tasks,
-            "total_tasks": total_tasks,
-            "completed_tasks": completed_tasks,
-            "overdue_tasks": overdue_tasks,
-        })
+        context.update(
+            {
+                "assigned_tasks": assigned_tasks,
+                "total_tasks": total_tasks,
+                "completed_tasks": completed_tasks,
+                "overdue_tasks": overdue_tasks,
+            }
+        )
 
         return context
 
@@ -89,8 +84,7 @@ class TaskListView(LoginRequiredMixin, ListView):
 
         if search:
             queryset = queryset.filter(
-                Q(title__icontains=search) |
-                Q(description__icontains=search)
+                Q(title__icontains=search) | Q(description__icontains=search)
             )
 
         if status == "completed":
@@ -122,7 +116,15 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
-    fields = ["title", "description", "deadline", "priority", "task_type", "assignees", "is_completed"]
+    fields = [
+        "title",
+        "description",
+        "deadline",
+        "priority",
+        "task_type",
+        "assignees",
+        "is_completed",
+    ]
     template_name = "tasks/task_form.html"
     success_url = reverse_lazy("tasks:task-list")
 

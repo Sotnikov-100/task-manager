@@ -4,6 +4,7 @@ from django.db import models
 
 class Position(models.Model):
     """Employee positions (Developer, QA, Designer, etc.)"""
+
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
@@ -12,6 +13,7 @@ class Position(models.Model):
 
 class TaskType(models.Model):
     """Types of tasks (Bug, New Feature, Refactoring)"""
+
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
@@ -20,12 +22,13 @@ class TaskType(models.Model):
 
 class Worker(AbstractUser):
     """Users (employees) with positions"""
+
     position = models.ForeignKey(
         Position,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="workers"
+        related_name="workers",
     )
     email = models.EmailField(unique=True)
 
@@ -47,21 +50,14 @@ class Task(models.Model):
     deadline = models.DateTimeField()
     is_completed = models.BooleanField(default=False)
     priority = models.CharField(
-        max_length=10,
-        choices=PriorityChoices.choices,
-        default=PriorityChoices.MEDIUM
+        max_length=10, choices=PriorityChoices.choices, default=PriorityChoices.MEDIUM
     )
     task_type = models.ForeignKey(
-        TaskType,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
+        TaskType, on_delete=models.SET_NULL, null=True, blank=True
     )
     assignees = models.ManyToManyField(Worker, related_name="tasks")
     created_by = models.ForeignKey(
-        Worker,
-        on_delete=models.CASCADE,
-        related_name="created_tasks"
+        Worker, on_delete=models.CASCADE, related_name="created_tasks"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
