@@ -1,67 +1,198 @@
 {% extends "base.html" %}
 
+{% block title %}Dashboard | IT Task Manager{% endblock %}
+
 {% block content %}
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-          <h5><i class="bi bi-list-check me-2"></i>My Tasks</h5>
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h4 mb-0">
+            <i class="bi bi-speedometer2 me-2 text-primary"></i>Task Dashboard
+            <small class="text-muted ms-2">Welcome back, {{ user.username }}!</small>
+          </h1>
         </div>
-        <div class="card-body">
-          <div class="list-group">
-            {% for task in assigned_tasks %}
-              <a href="{% url 'tasks:task-detail' task.id %}" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                  <h6 class="mb-1">{{ task.title }}</h6>
-                  <small
-                      class="text-{% if task.priority == 'URGENT' %}danger{% elif task.priority == 'HIGH' %}warning{% else %}success{% endif %}">
-                    {{ task.get_priority_display }}
-                  </small>
-                </div>
-                <small>Due: {{ task.deadline|date:"M d, Y" }}</small>
-              </a>
-            {% empty %}
-              <div class="alert alert-info">No tasks assigned to you.</div>
-            {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Stats Cards -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm stat-card bg-primary text-white animate-on-scroll">
+        <div class="card-body p-4">
+          <h3 class="display-4 fw-bold">{{ total_tasks }}</h3>
+          <p class="mb-0">Total Tasks</p>
+          <div class="icon">
+            <i class="bi bi-list-check"></i>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="card mb-4">
-        <div class="card-header bg-success text-white">
-          <h5><i class="bi bi-graph-up me-2"></i>Statistics</h5>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm stat-card bg-success text-white animate-on-scroll">
+        <div class="card-body p-4">
+          <h3 class="display-4 fw-bold">{{ completed_tasks }}</h3>
+          <p class="mb-0">Completed Tasks</p>
+          <div class="icon">
+            <i class="bi bi-check-circle"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm stat-card bg-danger text-white animate-on-scroll">
+        <div class="card-body p-4">
+          <h3 class="display-4 fw-bold">{{ overdue_tasks }}</h3>
+          <p class="mb-0">Overdue Tasks</p>
+          <div class="icon">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Tasks Section -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white p-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-list-check me-2 text-primary"></i>My Tasks</h5>
+            <a href="{% url 'tasks:task-create' %}" class="btn btn-sm btn-primary">
+              <i class="bi bi-plus-circle me-1"></i>New Task
+            </a>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            {% for task in assigned_tasks %}
+              <div class="list-group-item list-group-item-action p-3" id="task-{{ task.id }}">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="d-flex align-items-center mb-1">
+                      <span class="task-status-indicator status-{% if task.is_completed %}completed{% elif task.deadline < now %}overdue{% else %}active{% endif %}"></span>
+                      <h6 class="mb-0">
+                        <a href="{% url 'tasks:task-detail' task.id %}" class="text-decoration-none">
+                          {{ task.title }}
+                        </a>
+                      </h6>
+                    </div>
+                    <div class="small text-muted d-flex align-items-center">
+                      <i class="bi bi-clock me-1"></i>
+                      <span class="countdown" data-deadline="{{ task.deadline|date:'c' }}">
+                        {{ task.deadline|date:"M d, Y" }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %} me-2">
+                      {{ task.get_priority_display }}
+                    </span>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input task-completion-toggle"
+                             type="checkbox"
+                             role="switch"
+                             id="complete-task-{{ task.id }}"
+                             data-task-id="{{ task.id }}"
+                             {% if task.is_completed %}checked{% endif %}>
+                      <label class="visually-hidden" for="complete-task-{{ task.id }}">
+                        Mark as complete
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-center p-4">
+                <div class="mb-3">
+                  <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                </div>
+                <p class="text-muted mb-3">No tasks assigned to you yet.</p>
+                <a href="{% url 'tasks:task-create' %}" class="btn btn-primary">
+                  <i class="bi bi-plus-circle me-1"></i>Create New Task
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% if assigned_tasks %}
+        <div class="card-footer bg-white p-3">
+          <a href="{% url 'tasks:task-list' %}" class="btn btn-sm btn-outline-primary">
+            View All Tasks
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Task Distribution -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white p-3">
+          <h5 class="mb-0"><i class="bi bi-graph-up me-2 text-success"></i>Task Status</h5>
         </div>
         <div class="card-body">
-          <div class="row text-center">
-            <div class="col-md-4">
-              <div class="card bg-light mb-2">
-                <div class="card-body">
-                  <h3>{{ total_tasks }}</h3>
-                  <small class="text-muted">Total Tasks</small>
-                </div>
-              </div>
+          <div class="progress mb-4" style="height: 25px;">
+            {% with completed_percent=completed_tasks|floatformat:0|default:0|stringformat:"s"|add:"%25" %}
+            <div class="progress-bar bg-success"
+                 role="progressbar"
+                 style="width: {{ completed_percent }};"
+                 aria-valuenow="{{ completed_tasks }}"
+                 aria-valuemin="0"
+                 aria-valuemax="{{ total_tasks }}">
+              {{ completed_tasks }} Completed
             </div>
-            <div class="col-md-4">
-              <div class="card bg-light mb-2">
-                <div class="card-body">
-                  <h3>{{ completed_tasks }}</h3>
-                  <small class="text-muted">Completed</small>
-                </div>
-              </div>
+            {% endwith %}
+            <div class="progress-bar bg-warning"
+                 role="progressbar"
+                 style="width: {{ 100|add:"-completed_tasks"|floatformat:0|default:0|stringformat:"s"|add:"%25" }};"
+                 aria-valuenow="{{ total_tasks|add:"-completed_tasks" }}"
+                 aria-valuemin="0"
+                 aria-valuemax="{{ total_tasks }}">
+              {{ total_tasks|add:"-completed_tasks" }} Active
             </div>
-            <div class="col-md-4">
-              <div class="card bg-light mb-2">
-                <div class="card-body">
-                  <h3>{{ overdue_tasks }}</h3>
-                  <small class="text-muted">Overdue</small>
-                </div>
+          </div>
+
+          <div class="list-group mb-3">
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="bi bi-circle-fill text-success me-2 small"></i>
+                Completed Tasks
               </div>
+              <span class="badge bg-secondary rounded-pill">{{ completed_tasks }}</span>
             </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="bi bi-circle-fill text-warning me-2 small"></i>
+                Active Tasks
+              </div>
+              <span class="badge bg-secondary rounded-pill">{{ total_tasks|add:"-completed_tasks" }}</span>
+            </div>
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="bi bi-circle-fill text-danger me-2 small"></i>
+                Overdue Tasks
+              </div>
+              <span class="badge bg-secondary rounded-pill">{{ overdue_tasks }}</span>
+            </div>
+          </div>
+
+          <div class="text-center mt-4">
+            <a href="{% url 'tasks:task-list' %}" class="btn btn-outline-primary">
+              View All Tasks
+            </a>
           </div>
         </div>
       </div>
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Current date for overdue calculation
+  const now = new Date();
+</script>
 {% endblock %}
