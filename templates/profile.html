@@ -1,42 +1,349 @@
 {% extends "base.html" %}
 
+{% block title %}My Profile | IT Task Manager{% endblock %}
+
 {% block content %}
-  <div class="container mt-4">
-    <div class="row">
-      <div class="col-md-4">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">{{ worker.username }}</h5>
-            <p class="card-text">
-              Position: {{ worker.position|default:"Not specified" }}
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div class="mb-4">
+              <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                   style="width: 100px; height: 100px; font-size: 2.5rem;">
+                {{ worker.username|slice:":1"|upper }}
+              </div>
+            </div>
+
+            <h4 class="mb-1">{{ worker.username }}</h4>
+            <p class="text-muted mb-3">
+              {{ worker.position|default:"Team Member" }}
             </p>
-            <a href="{% url 'tasks:password_change' %}"
-               class="btn btn-warning">
-              Change Password
-            </a>
+
+            <div class="d-grid gap-2">
+              <a href="{% url 'tasks:password_change' %}"
+                 class="btn btn-outline-primary">
+                <i class="bi bi-shield-lock me-1"></i>Change Password
+              </a>
+              <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                <i class="bi bi-pencil me-1"></i>Edit Profile
+              </button>
+            </div>
+          </div>
+
+          <div class="card-footer bg-white p-3">
+            <div class="row text-center">
+              <div class="col-4">
+                <h5 class="mb-0">{{ tasks.count }}</h5>
+                <small class="text-muted">Tasks</small>
+              </div>
+              <div class="col-4">
+                <h5 class="mb-0">{{ tasks_completed|default:0 }}</h5>
+                <small class="text-muted">Completed</small>
+              </div>
+              <div class="col-4">
+                <h5 class="mb-0">{{ tasks_pending|default:0 }}</h5>
+                <small class="text-muted">Pending</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mt-4">
+          <div class="card-header bg-white p-3">
+            <h5 class="mb-0"><i class="bi bi-info-circle me-2 text-primary"></i>Contact Info</h5>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-envelope me-2 text-muted"></i>Email</span>
+                <span>{{ worker.email }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-briefcase me-2 text-muted"></i>Position</span>
+                <span>{{ worker.position|default:"Not specified" }}</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-calendar-event me-2 text-muted"></i>Joined</span>
+                <span>{{ worker.date_joined|date:"M d, Y" }}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-header bg-primary text-white">
-            Assigned Tasks ({{ tasks.count }})
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white p-3">
+            <ul class="nav nav-tabs card-header-tabs" id="profileTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks"
+                        type="button" role="tab" aria-controls="tasks" aria-selected="true">
+                  <i class="bi bi-list-check me-1"></i>My Tasks
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity"
+                        type="button" role="tab" aria-controls="activity" aria-selected="false">
+                  <i class="bi bi-activity me-1"></i>Activity
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings"
+                        type="button" role="tab" aria-controls="settings" aria-selected="false">
+                  <i class="bi bi-gear me-1"></i>Settings
+                </button>
+              </li>
+            </ul>
           </div>
-          <div class="card-body">
-            {% for task in tasks %}
-              <div class="alert
-                        {% if task.is_completed %}alert-success{% else %}alert-info{% endif %}">
-                <h5>{{ task.title }}</h5>
-                <p>Priority: {{ task.get_priority_display }}</p>
-                <small>Due: {{ task.deadline|date:"Y-m-d H:i" }}</small>
+
+          <div class="card-body p-0">
+            <div class="tab-content" id="profileTabContent">
+              <div class="tab-pane fade show active p-4" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <h5 class="mb-0">Assigned Tasks</h5>
+                  <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-primary active">All</button>
+                    <button type="button" class="btn btn-outline-primary">Active</button>
+                    <button type="button" class="btn btn-outline-primary">Completed</button>
+                  </div>
+                </div>
+
+                {% if tasks %}
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Task</th>
+                          <th>Priority</th>
+                          <th>Deadline</th>
+                          <th>Status</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for task in tasks %}
+                          <tr>
+                            <td>
+                              <a href="{% url 'tasks:task-detail' task.id %}" class="text-decoration-none">
+                                {{ task.title }}
+                              </a>
+                            </td>
+                            <td>
+                              <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                {{ task.get_priority_display }}
+                              </span>
+                            </td>
+                            <td>
+                              <div class="small countdown" data-deadline="{{ task.deadline|date:'c' }}">
+                                {{ task.deadline|date:"M d, Y" }}
+                              </div>
+                            </td>
+                            <td>
+                              <div class="form-check form-switch">
+                                <input class="form-check-input task-completion-toggle"
+                                       type="checkbox"
+                                       role="switch"
+                                       id="complete-task-{{ task.id }}"
+                                       data-task-id="{{ task.id }}"
+                                       {% if task.is_completed %}checked{% endif %}>
+                              </div>
+                            </td>
+                            <td>
+                              <a href="{% url 'tasks:task-detail' task.id %}" class="btn btn-sm btn-outline-primary">
+                                View
+                              </a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% else %}
+                  <div class="text-center py-5">
+                    <div class="mb-3">
+                      <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="text-muted mb-3">You don't have any assigned tasks.</p>
+                  </div>
+                {% endif %}
               </div>
-            {% empty %}
-              <div class="alert alert-warning">No tasks assigned.</div>
-            {% endfor %}
+
+              <div class="tab-pane fade p-4" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                <div class="timeline">
+                  <div class="timeline-item mb-4">
+                    <div class="d-flex">
+                      <div class="timeline-marker bg-primary"></div>
+                      <div class="ms-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h6 class="mb-0">Task Completed</h6>
+                          <small class="text-muted">2 hours ago</small>
+                        </div>
+                        <p class="text-muted mb-0">You marked "Database Migration" as completed</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="timeline-item mb-4">
+                    <div class="d-flex">
+                      <div class="timeline-marker bg-info"></div>
+                      <div class="ms-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h6 class="mb-0">Task Assigned</h6>
+                          <small class="text-muted">Yesterday</small>
+                        </div>
+                        <p class="text-muted mb-0">You were assigned to "Server Maintenance"</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="timeline-item">
+                    <div class="d-flex">
+                      <div class="timeline-marker bg-success"></div>
+                      <div class="ms-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h6 class="mb-0">Profile Updated</h6>
+                          <small class="text-muted">3 days ago</small>
+                        </div>
+                        <p class="text-muted mb-0">You updated your profile information</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade p-4" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                <h5 class="mb-4">Profile Settings</h5>
+                <form>
+                  <div class="mb-3">
+                    <label for="displayName" class="form-label">Display Name</label>
+                    <input type="text" class="form-control" id="displayName" value="{{ worker.username }}">
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" value="{{ worker.email }}">
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="position" class="form-label">Position</label>
+                    <input type="text" class="form-control" id="position" value="{{ worker.position|default:'' }}">
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label">Notification Preferences</label>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="emailNotifs" checked>
+                      <label class="form-check-label" for="emailNotifs">
+                        Email Notifications
+                      </label>
+                    </div>
+                    <div class="form-check mb-2">
+                      <input class="form-check-input" type="checkbox" id="taskReminders" checked>
+                      <label class="form-check-label" for="taskReminders">
+                        Task Deadline Reminders
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="systemNotifs" checked>
+                      <label class="form-check-label" for="systemNotifs">
+                        System Notifications
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Edit Profile Modal -->
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="modalUsername" class="form-label">Username</label>
+              <input type="text" class="form-control" id="modalUsername" name="username" value="{{ worker.username }}" readonly>
+            </div>
+
+            <div class="mb-3">
+              <label for="modalEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="modalEmail" name="email" value="{{ worker.email }}">
+            </div>
+
+            <div class="mb-3">
+              <label for="modalPosition" class="form-label">Position</label>
+              <input type="text" class="form-control" id="modalPosition" name="position" value="{{ worker.position|default:'' }}">
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Task completion toggle functionality
+    const toggles = document.querySelectorAll('.task-completion-toggle');
+    toggles.forEach(toggle => {
+      toggle.addEventListener('change', function() {
+        const taskId = this.dataset.taskId;
+        const isCompleted = this.checked;
+
+        // Send AJAX request to update task status
+        fetch(`/tasks/${taskId}/toggle-completion/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({ is_completed: isCompleted })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Show success notification
+            console.log('Task status updated successfully');
+          } else {
+            // Revert toggle if request failed
+            this.checked = !isCompleted;
+            console.error('Failed to update task status');
+          }
+        })
+        .catch(error => {
+          // Revert toggle if request failed
+          this.checked = !isCompleted;
+          console.error('Error:', error);
+        });
+      });
+    });
+
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+  });
+</script>
 {% endblock %}
