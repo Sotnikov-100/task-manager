@@ -1,58 +1,163 @@
 {% extends "base.html" %}
 {% load query_tags %}
 
+{% block title %}All Tasks | IT Task Manager{% endblock %}
+
 {% block content %}
   <div class="container">
-    <h2 class="mb-4">Task List</h2>
-
-    <form method="get" class="mb-4">
-      <div class="row g-3">
-        <div class="col-md-4">
-          <input type="text" name="search" class="form-control"
-                 placeholder="Search..." value="{{ request.GET.search }}">
-        </div>
-        <div class="col-md-3">
-          <select name="status" class="form-select">
-            <option value="">All Tasks</option>
-            <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option>
-            <option value="completed" {% if request.GET.status == "completed" %}selected{% endif %}>Completed</option>
-          </select>
-        </div>
-        <div class="col-md-3">
-          <select name="priority" class="form-select">
-            <option value="">All Priorities</option>
-            {% for value, name in task_priority_choices %}
-              <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn btn-primary w-100">Filter</button>
-        </div>
-      </div>
-    </form>
-
-    <a href="{% url 'tasks:task-create' %}" class="btn btn-primary mb-3">
-      <i class="bi bi-plus-circle"></i> Create New Task
-    </a>
-
-    <div class="list-group">
-      {% for task in tasks %}
-        <a href="{% url 'tasks:task-detail' task.pk %}" class="list-group-item list-group-item-action">
-          <div class="d-flex justify-content-between">
-            <h5>{{ task.title }}</h5>
-            <span class="badge bg-{% if task.priority == "URGENT" %}danger{% elif task.priority == "HIGH" %}warning{% else %}success{% endif %}">
-              {{ task.get_priority_display }}
-            </span>
-          </div>
-          <small>Due: {{ task.deadline|date:"Y-m-d H:i" }}</small>
-        </a>
-      {% empty %}
-        <div class="alert alert-info">No tasks found.</div>
-      {% endfor %}
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <h1 class="h3 mb-3 mb-md-0">
+        <i class="bi bi-list-task text-primary me-2"></i>Task List
+      </h1>
+      <a href="{% url 'tasks:task-create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Create New Task
+      </a>
     </div>
 
-    <!-- Pagination -->
-    {% include "includes/pagination.html" %}
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-white p-3">
+        <h5 class="mb-0">Filters</h5>
+      </div>
+      <div class="card-body p-3">
+        <form method="get" id="task-filter-form" class="mb-0">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search tasks..." value="{{ request.GET.search }}">
+              </div>
+            </div>
+            <div class="col-md-2">
+              <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option>
+                <option value="completed" {% if request.GET.status == "completed" %}selected{% endif %}>Completed</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select name="priority" class="form-select">
+                <option value="">All Priorities</option>
+                {% for value, name in task_priority_choices %}
+                  <option value="{{ value }}" {% if request.GET.priority == value %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-funnel me-1"></i>Apply Filters
+              </button>
+            </div>
+            <div class="col-md-2">
+              <button type="button" id="clear-filters" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-x me-1"></i>Clear Filters
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Status</th>
+              <th>Title</th>
+              <th>Priority</th>
+              <th>Deadline</th>
+              <th>Assignees</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+              <tr id="task-{{ task.id }}" class="{% if task.is_completed %}table-success{% elif task.deadline < now %}table-danger{% endif %}">
+                <td>
+                  <div class="form-check form-switch">
+                    <input class="form-check-input task-completion-toggle"
+                           type="checkbox"
+                           role="switch"
+                           id="complete-task-{{ task.id }}"
+                           data-task-id="{{ task.id }}"
+                           {% if task.is_completed %}checked{% endif %}>
+                  </div>
+                </td>
+                <td>
+                  <a href="{% url 'tasks:task-detail' task.pk %}" class="fw-medium text-decoration-none text-reset">
+                    {{ task.title }}
+                  </a>
+                </td>
+                <td>
+                  <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                    {{ task.get_priority_display }}
+                  </span>
+                </td>
+                <td>
+                  <div class="small countdown" data-deadline="{{ task.deadline|date:'c' }}">
+                    {{ task.deadline|date:"M d, Y" }}
+                  </div>
+                </td>
+                <td>
+                  <div class="d-flex">
+                    {% for worker in task.assignees.all|slice:":3" %}
+                      <span class="badge bg-secondary me-1" data-bs-toggle="tooltip" title="{{ worker.username }}">
+                        {{ worker.username|slice:":1" }}
+                      </span>
+                    {% empty %}
+                      <span class="text-muted small">No assignees</span>
+                    {% endfor %}
+                    {% if task.assignees.count > 3 %}
+                      <span class="badge bg-secondary">+{{ task.assignees.count|add:"-3" }}</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  <div class="btn-group btn-group-sm">
+                    <a href="{% url 'tasks:task-detail' task.pk %}" class="btn btn-outline-primary" data-bs-toggle="tooltip" title="View">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{% url 'tasks:task-update' task.pk %}" class="btn btn-outline-secondary" data-bs-toggle="tooltip" title="Edit">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'tasks:task-delete' task.pk %}" class="btn btn-outline-danger" data-bs-toggle="tooltip" title="Delete">
+                      <i class="bi bi-trash"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-5">
+                  <div class="mb-3">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                  </div>
+                  <p class="text-muted mb-3">No tasks found matching your criteria.</p>
+                  <a href="{% url 'tasks:task-create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Create New Task
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if tasks %}
+        <div class="card-footer bg-white p-3">
+          {% include "includes/pagination.html" %}
+        </div>
+      {% endif %}
+    </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Current date for overdue calculation
+  const now = new Date();
+</script>
 {% endblock %}

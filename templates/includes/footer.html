@@ -1,0 +1,43 @@
+<footer class="bg-dark text-white py-4 mt-auto">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 mb-3 mb-md-0">
+        <h5 class="mb-3"><i class="bi bi-check2-square me-2"></i>IT Task Manager</h5>
+        <p class="text-muted">Streamline your IT project management with our comprehensive task management solution.</p>
+      </div>
+      <div class="col-md-2 mb-3 mb-md-0">
+        <h5 class="mb-3">Navigation</h5>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'tasks:index' %}" class="text-decoration-none link-light">Dashboard</a></li>
+          <li><a href="{% url 'tasks:task-list' %}" class="text-decoration-none link-light">Tasks</a></li>
+          <li><a href="{% url 'tasks:profile' %}" class="text-decoration-none link-light">Profile</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <h5 class="mb-3">Resources</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-decoration-none link-light">Documentation</a></li>
+          <li><a href="#" class="text-decoration-none link-light">API</a></li>
+          <li><a href="#" class="text-decoration-none link-light">Support</a></li>
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <h5 class="mb-3">Connect</h5>
+        <div class="d-flex gap-3 fs-4">
+          <a href="#" class="text-decoration-none link-light"><i class="bi bi-github"></i></a>
+          <a href="#" class="text-decoration-none link-light"><i class="bi bi-twitter"></i></a>
+          <a href="#" class="text-decoration-none link-light"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="text-decoration-none link-light"><i class="bi bi-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+    <hr class="my-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <div class="text-muted mb-2 mb-md-0">© 2025 IT Task Manager. All rights reserved.</div>
+      <div>
+        <a href="#" class="text-decoration-none link-light me-3">Privacy Policy</a>
+        <a href="#" class="text-decoration-none link-light">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>
