@@ -15,7 +15,7 @@
       <div class="card-body p-4">
         <h2 class="card-title h4 mb-4 text-center">Login</h2>
 
-        <form method="post" action="{% url 'tasks:login' %}" novalidate>
+        <form method="post" action="{% url 'accounts:login' %}" novalidate>
           {% csrf_token %}
 
           {% if form.errors %}
@@ -44,7 +44,7 @@
           <div class="mb-3">
             <div class="d-flex justify-content-between">
               <label for="id_password" class="form-label">Password</label>
-              <a href="{% url 'password_reset' %}" class="small text-decoration-none">
+              <a href="{% url 'accounts:password_reset' %}" class="small text-decoration-none">
                 Forgot password?
               </a>
             </div>
@@ -75,7 +75,7 @@
 
           <div class="text-center">
             <span class="text-muted">Don't have an account?</span>
-            <a href="{% url 'tasks:signup' %}" class="text-decoration-none ms-1">
+            <a href="{% url 'accounts:signup' %}" class="text-decoration-none ms-1">
               Sign up
             </a>
           </div>

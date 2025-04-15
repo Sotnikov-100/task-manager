@@ -8,7 +8,7 @@ from accounts.forms import WorkerCreationForm
 class SignUpView(CreateView):
     form_class = WorkerCreationForm
     template_name = "registration/signup.html"
-    success_url = reverse_lazy("tasks:login")
+    success_url = reverse_lazy("accounts:login")
 
 
 class CustomPasswordChangeView(PasswordChangeView):

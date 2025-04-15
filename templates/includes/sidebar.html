@@ -40,7 +40,7 @@
       <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
         <li><a class="dropdown-item" href="{% url 'tasks:profile' %}">Profile</a></li>
         <li>
-          <form action="{% url 'tasks:logout' %}" method="post" class="d-inline">
+          <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
             {% csrf_token %}
             <button type="submit" class="dropdown-item">Sign out</button>
           </form>
@@ -48,6 +48,6 @@
       </ul>
     </div>
   {% else %}
-    <a href="{% url 'tasks:login' %}" class="btn btn-outline-light">Login</a>
+    <a href="{% url 'accounts:login' %}" class="btn btn-outline-light">Login</a>
   {% endif %}
 </div>
