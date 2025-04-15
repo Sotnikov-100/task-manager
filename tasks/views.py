@@ -1,5 +1,4 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import PasswordChangeView
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -12,7 +11,7 @@ from django.views.generic import (
     UpdateView,
 )
 
-from tasks.forms import TaskForm, WorkerCreationForm
+from tasks.forms import TaskForm
 from tasks.models import Task, Worker
 
 
@@ -42,12 +41,6 @@ class IndexView(LoginRequiredMixin, TemplateView):
         )
 
         return context
-
-
-class SignUpView(CreateView):
-    form_class = WorkerCreationForm
-    template_name = "registration/signup.html"
-    success_url = reverse_lazy("tasks:login")
 
 
 class ProfileView(LoginRequiredMixin, DetailView):
@@ -133,8 +126,3 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = "tasks/task_confirm_delete.html"
     success_url = reverse_lazy("tasks:task-list")
-
-
-class CustomPasswordChangeView(PasswordChangeView):
-    template_name = "registration/password_change.html"
-    success_url = reverse_lazy("tasks:profile")

@@ -2,10 +2,8 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 
 from tasks.views import (
-    CustomPasswordChangeView,
     IndexView,
     ProfileView,
-    SignUpView,
     TaskCreateView,
     TaskDeleteView,
     TaskDetailView,
@@ -18,7 +16,7 @@ app_name = "tasks"
 
 urlpatterns = [
     path("", IndexView.as_view(), name="index"),
-    path("signup/", SignUpView.as_view(), name="signup"),
+
     path("profile/", ProfileView.as_view(), name="profile"),
     path(
         "login/",
