@@ -1,4 +1,4 @@
-from task_manager.settings.base import *
+from core.settings.base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "") != "False"

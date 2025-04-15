@@ -1,4 +1,4 @@
-from task_manager.settings.base import *
+from core.settings.base import *
 
 DEBUG = False
 
