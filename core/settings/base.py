@@ -14,6 +14,7 @@ import os
 import warnings
 from pathlib import Path
 
+from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -97,11 +98,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "tasks.Worker"
 
-LOGIN_URL = "accounts:login"
+LOGIN_URL = reverse_lazy("accounts:login")
 
-LOGOUT_REDIRECT_URL = "accounts:login"
+LOGOUT_REDIRECT_URL = reverse_lazy("accounts:login")
 
-LOGIN_REDIRECT_URL = "tasks:index"
+LOGIN_REDIRECT_URL = reverse_lazy("tasks:index")
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

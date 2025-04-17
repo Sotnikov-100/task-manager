@@ -37,7 +37,7 @@ This **task manager** is designed for IT teams that need a simple yet powerful s
 
 --- 
 
-### **🚀 How to Deploy?**
+### **🚀 How to run locally?**
 
 1. **Clone the repository**:
    ```bash

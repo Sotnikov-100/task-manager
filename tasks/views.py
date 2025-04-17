@@ -103,7 +103,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("tasks:task-list")
 
     def form_valid(self, form):
-        form.instance.created_by = self.request.user  # Автоматично встановити автора
+        form.instance.created_by = self.request.user
         return super().form_valid(form)
 
 
