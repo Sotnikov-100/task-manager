@@ -1,5 +1,6 @@
 from django.contrib import admin
-from tasks.models import Position, Task, TaskType, Worker, TaskAssignment
+
+from tasks.models import Position, Task, TaskAssignment, TaskType, Worker
 
 
 @admin.register(Worker)
