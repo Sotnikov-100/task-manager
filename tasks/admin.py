@@ -1,5 +1,5 @@
 from django.contrib import admin
-from tasks.models import Position, Task, TaskType, Worker, TaskWorker
+from tasks.models import Position, Task, TaskType, Worker, TaskAssignment
 
 
 @admin.register(Worker)
@@ -9,7 +9,7 @@ class WorkerAdmin(admin.ModelAdmin):
     search_fields = ("username", "email")
 
 
-@admin.register(TaskWorker)
+@admin.register(TaskAssignment)
 class TaskAssignmentAdmin(admin.ModelAdmin):
     list_display = ("task", "worker", "assigned_at")
     list_filter = ("assigned_at",)
@@ -17,7 +17,7 @@ class TaskAssignmentAdmin(admin.ModelAdmin):
 
 
 class TaskAssignmentInline(admin.TabularInline):
-    model = TaskWorker
+    model = TaskAssignment
     extra = 1
     raw_id_fields = ("worker",)
 
