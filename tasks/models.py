@@ -59,7 +59,8 @@ class Task(models.Model):
         Worker,
         related_name="tasks",
         blank=True,
-        through="TaskWorker",
+        through="TaskAssignment",
+        through_fields=("task", "worker"),
     )
     created_by = models.ForeignKey(
         Worker, on_delete=models.CASCADE, related_name="created_tasks"
@@ -70,7 +71,10 @@ class Task(models.Model):
         return self.title
 
 
-class TaskWorker(models.Model):
+class TaskAssignment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     worker = models.ForeignKey(Worker, on_delete=models.CASCADE)
     assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [["task", "worker"]]
