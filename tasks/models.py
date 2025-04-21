@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 class Position(models.Model):
@@ -78,3 +79,25 @@ class TaskAssignment(models.Model):
 
     class Meta:
         unique_together = [["task", "worker"]]
+
+
+class UserActivity(models.Model):
+    ACTIVITY_CHOICES = [
+        ("PROFILE_UPDATE", "Profile Updated"),
+        ("TASK_COMPLETE", "Task Completed"),
+        ("TASK_REOPENED", "Task Reopened"),
+        ("TASK_ASSIGNED", "Task Assigned"),
+    ]
+
+    user = models.ForeignKey(Worker, on_delete=models.CASCADE)
+    activity_type = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
+    description = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
+    metadata = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+        verbose_name_plural = "User Activities"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_activity_type_display()} at {self.timestamp}"

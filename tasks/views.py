@@ -12,7 +12,7 @@ from django.views.generic import (
 )
 
 from tasks.forms import TaskForm
-from tasks.models import Task, Worker
+from tasks.models import Task, Worker, UserActivity
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -53,7 +53,17 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["tasks"] = Task.objects.filter(assignees=self.request.user)
+        user = self.request.user
+
+        tasks = Task.objects.filter(assignees=user)
+        context["tasks"] = tasks
+        context["tasks_completed"] = tasks.filter(is_completed=True).count()
+        context["tasks_pending"] = tasks.filter(is_completed=False).count()
+
+        context["user_activities"] = UserActivity.objects.filter(user=user).order_by(
+            "-timestamp"
+        )[:10]
+
         return context
 
 
