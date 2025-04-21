@@ -29,17 +29,19 @@ def create_task_assignment_activity(sender, instance, action, pk_set, **kwargs):
 
 @receiver(post_save, sender=Task)
 def update_task_completion_activity(sender, instance, created, **kwargs):
-    if not created and "is_completed" in instance.get_dirty_fields():
-        for worker in instance.assignees.all():
-            UserActivity.objects.create(
-                user=worker,
-                activity_type=(
-                    "TASK_COMPLETE" if instance.is_completed else "TASK_REOPENED"
-                ),
-                description=f'Task "{instance.title}" was marked as {"completed" if instance.is_completed else "reopened"}',
-                metadata={
-                    "task_id": instance.id,
-                    "task_title": instance.title,
-                    "status": "completed" if instance.is_completed else "reopened",
-                },
-            )
+    if not created and hasattr(instance, "_changed_fields"):
+        if "is_completed" in instance._changed_fields:
+            for worker in instance.assignees.all():
+                UserActivity.objects.create(
+                    user=worker,
+                    activity_type=(
+                        "TASK_COMPLETE" if instance.is_completed else "TASK_REOPENED"
+                    ),
+                    description=f'Task "{instance.title}" was marked as '
+                    f'{"completed" if instance.is_completed else "reopened"}',
+                    metadata={
+                        "task_id": instance.id,
+                        "task_title": instance.title,
+                        "status": "completed" if instance.is_completed else "reopened",
+                    },
+                )

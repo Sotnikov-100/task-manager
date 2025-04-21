@@ -1,7 +1,7 @@
 from django import forms
 from django.utils import timezone
 
-from tasks.models import Task
+from tasks.models import Task, Document
 
 
 class TaskForm(forms.ModelForm):
@@ -25,3 +25,9 @@ class TaskForm(forms.ModelForm):
         if deadline and deadline < timezone.now():
             raise forms.ValidationError("Deadline cannot be in the past.")
         return deadline
+
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ["file"]

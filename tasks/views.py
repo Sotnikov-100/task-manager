@@ -1,7 +1,9 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.urls import reverse_lazy
+from django.http import JsonResponse
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -11,8 +13,8 @@ from django.views.generic import (
     UpdateView,
 )
 
-from tasks.forms import TaskForm
-from tasks.models import Task, Worker, UserActivity
+from tasks.forms import TaskForm, DocumentForm
+from tasks.models import Task, Worker, UserActivity, Document
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -128,3 +130,35 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = "tasks/task_confirm_delete.html"
     success_url = reverse_lazy("tasks:task-list")
+
+
+class TaskToggleCompleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        task = Task.objects.get(pk=pk)
+        if request.user in task.assignees.all() or request.user == task.created_by:
+            task.is_completed = not task.is_completed
+            task.save()
+            return JsonResponse(
+                {"status": "success", "is_completed": task.is_completed}
+            )
+        return JsonResponse(
+            {
+                "status": "error",
+                "message": "You are not authorized to update this task.",
+            },
+            status=403,
+        )
+
+
+class DocumentUploadView(LoginRequiredMixin, CreateView):
+    model = Document
+    form_class = DocumentForm
+    template_name = "tasks/document_upload.html"
+
+    def form_valid(self, form):
+        form.instance.task = Task.objects.get(pk=self.kwargs["pk"])
+        form.instance.uploaded_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("tasks:task-detail", kwargs={"pk": self.kwargs["pk"]})

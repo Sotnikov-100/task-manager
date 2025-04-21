@@ -8,6 +8,8 @@ from tasks.views import (
     TaskDetailView,
     TaskListView,
     TaskUpdateView,
+    TaskToggleCompleteView,
+    DocumentUploadView,
 )
 
 app_name = "tasks"
@@ -21,4 +23,14 @@ urlpatterns = [
     path("tasks/<int:pk>/", TaskDetailView.as_view(), name="task-detail"),
     path("tasks/<int:pk>/update/", TaskUpdateView.as_view(), name="task-update"),
     path("tasks/<int:pk>/delete/", TaskDeleteView.as_view(), name="task-delete"),
+    path(
+        "task/<int:pk>/toggle-complete/",
+        TaskToggleCompleteView.as_view(),
+        name="task-toggle-complete",
+    ),
+    path(
+        "task/<int:pk>/upload-document/",
+        DocumentUploadView.as_view(),
+        name="document-upload",
+    ),
 ]

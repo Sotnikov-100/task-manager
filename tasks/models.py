@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from model_utils.models import TimeStampedModel
 
 
 class Position(models.Model):
@@ -37,7 +38,7 @@ class Worker(AbstractUser):
         return f"{self.username} ({self.position})"
 
 
-class Task(models.Model):
+class Task(TimeStampedModel, models.Model):
     """Tasks for the team"""
 
     class PriorityChoices(models.TextChoices):
@@ -101,3 +102,13 @@ class UserActivity(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.get_activity_type_display()} at {self.timestamp}"
+
+
+class Document(models.Model):
+    file = models.FileField(upload_to="task_documents/")
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="documents")
+    uploaded_by = models.ForeignKey(Worker, on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Document for {self.task.title}"

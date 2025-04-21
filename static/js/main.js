@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Enable all tooltips
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
   });
-
-  // Auto-hide alerts after 5 seconds
+// Auto-hide alerts after 5 seconds
   setTimeout(function() {
     var alerts = document.querySelectorAll('.alert:not(.alert-important)');
     alerts.forEach(function(alert) {
@@ -34,38 +33,105 @@ document.addEventListener('DOMContentLoaded', function() {
   // Run once on page load
   animateOnScroll();
 
-  // Task completion toggle
-  var completionToggles = document.querySelectorAll('.task-completion-toggle');
-  completionToggles.forEach(function(toggle) {
+  // Task completion toggle - UPDATED VERSION
+  document.querySelectorAll('.task-completion-toggle').forEach(function(toggle) {
     toggle.addEventListener('change', function() {
-      var taskId = this.getAttribute('data-task-id');
-      var isCompleted = this.checked;
+      const taskId = this.dataset.taskId;
+      const csrftoken = getCookie('csrftoken');
+      const isCompleted = this.checked;
 
-      // Submit via fetch API
-      fetch('/tasks/toggle-completion/' + taskId + '/', {
+      fetch(`/tasks/task/${taskId}/toggle-complete/`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           is_completed: isCompleted
         })
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+      })
       .then(data => {
-        if (data.success) {
-          // Update UI
-          var taskElement = document.querySelector('#task-' + taskId);
-          if (isCompleted) {
-            taskElement.classList.add('completed-task');
-          } else {
-            taskElement.classList.remove('completed-task');
+        if (data.status === 'success') {
+          // Update UI without full page reload
+          const taskRow = document.querySelector(`#task-${taskId}`);
+          if (taskRow) {
+            taskRow.classList.toggle('table-success', isCompleted);
+
+            // Update status badge if exists
+            const statusBadge = taskRow.querySelector('.task-status-badge');
+            if (statusBadge) {
+              statusBadge.textContent = isCompleted ? 'Completed' : 'In Progress';
+              statusBadge.className = `badge ${isCompleted ? 'bg-success' : 'bg-warning'}`;
+            }
           }
+        } else {
+          throw new Error(data.message || 'Unknown error');
         }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        this.checked = !isCompleted; // Revert checkbox state
+        alert('Failed to update task status: ' + error.message);
       });
     });
   });
+
+  // Task filter form functionality
+  const filterForm = document.getElementById('task-filter-form');
+  if (filterForm) {
+    const clearFiltersBtn = document.getElementById('clear-filters');
+
+    clearFiltersBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const inputs = filterForm.querySelectorAll('input, select');
+      inputs.forEach(input => {
+        if (input.type !== 'submit') {
+          input.value = '';
+        }
+      });
+      filterForm.submit();
+    });
+  }
+
+  // Countdown timer for task deadlines
+  function updateCountdowns() {
+    const countdownElements = document.querySelectorAll('.countdown');
+
+    countdownElements.forEach(element => {
+      const deadline = new Date(element.getAttribute('data-deadline')).getTime();
+      const now = new Date().getTime();
+      const distance = deadline - now;
+
+      if (distance < 0) {
+        element.innerHTML = '<span class="text-danger">Overdue</span>';
+      } else {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+        if (days > 0) {
+          element.innerHTML = days + 'd ' + hours + 'h remaining';
+        } else {
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          element.innerHTML = hours + 'h ' + minutes + 'm remaining';
+        }
+
+        // Add warning color if deadline is near (less than 24 hours)
+        if (distance < (24 * 60 * 60 * 1000)) {
+          element.classList.add('text-warning', 'fw-bold');
+        }
+      }
+    });
+  }
+
+  // Update countdowns every minute
+  if (document.querySelector('.countdown')) {
+    updateCountdowns();
+    setInterval(updateCountdowns, 60000);
+  }
 });
 
 // Helper function to get cookies (for CSRF token)
@@ -84,55 +150,35 @@ function getCookie(name) {
   return cookieValue;
 }
 
-// Task filter form functionality
-const filterForm = document.getElementById('task-filter-form');
-if (filterForm) {
-  const clearFiltersBtn = document.getElementById('clear-filters');
+// Document upload modal handler (NEW)
+function setupDocumentUpload() {
+  const uploadModal = document.getElementById('documentUploadModal');
+  if (uploadModal) {
+    const form = uploadModal.querySelector('form');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(form);
 
-  clearFiltersBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    const inputs = filterForm.querySelectorAll('input, select');
-    inputs.forEach(input => {
-      if (input.type !== 'submit') {
-        input.value = '';
-      }
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          throw new Error('Upload failed');
+        }
+      })
+      .catch(error => {
+        alert('Error uploading document: ' + error.message);
+      });
     });
-    filterForm.submit();
-  });
+  }
 }
 
-// Countdown timer for task deadlines
-function updateCountdowns() {
-  const countdownElements = document.querySelectorAll('.countdown');
-
-  countdownElements.forEach(element => {
-    const deadline = new Date(element.getAttribute('data-deadline')).getTime();
-    const now = new Date().getTime();
-    const distance = deadline - now;
-
-    if (distance < 0) {
-      element.innerHTML = '<span class="text-danger">Overdue</span>';
-    } else {
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-      if (days > 0) {
-        element.innerHTML = days + 'd ' + hours + 'h remaining';
-      } else {
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        element.innerHTML = hours + 'h ' + minutes + 'm remaining';
-      }
-
-      // Add warning color if deadline is near (less than 24 hours)
-      if (distance < (24 * 60 * 60 * 1000)) {
-        element.classList.add('text-warning', 'fw-bold');
-      }
-    }
-  });
-}
-
-// Update countdowns every minute
-if (document.querySelector('.countdown')) {
-  updateCountdowns();
-  setInterval(updateCountdowns, 60000);
-}
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', setupDocumentUpload);
