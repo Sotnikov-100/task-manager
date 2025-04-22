@@ -172,3 +172,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 3000);
     }
 });
+
+$(document).on('submit', '#relationship-form', function(e) {
+    e.preventDefault();
+    $.ajax({
+        type: 'POST',
+        url: $(this).attr('action'),
+        data: $(this).serialize(),
+        success: function(response) {
+            location.reload();
+        }
+    });
+});

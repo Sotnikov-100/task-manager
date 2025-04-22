@@ -64,6 +64,14 @@ class Task(TimeStampedModel, models.Model):
         through="TaskAssignment",
         through_fields=("task", "worker"),
     )
+    related_tasks = models.ManyToManyField(
+        "self",
+        through="TaskRelationship",
+        through_fields=("source_task", "target_task"),
+        symmetrical=False,
+        blank=True,
+        verbose_name="Related Tasks",
+    )
     created_by = models.ForeignKey(
         Worker, on_delete=models.CASCADE, related_name="created_tasks"
     )
@@ -112,3 +120,36 @@ class Document(models.Model):
 
     def __str__(self):
         return f"Document for {self.task.title}"
+
+
+class TaskRelationship(models.Model):
+    class RelationshipType(models.TextChoices):
+        BLOCKS = "BLOCKS", "Blocks"
+        DEPENDS_ON = "DEPENDS_ON", "Depends On"
+        RELATED = "RELATED", "Related"
+        DUPLICATE = "DUPLICATE", "Duplicate"
+        PART_OF = "PART_OF", "Part Of"
+
+    source_task = models.ForeignKey(
+        "Task", on_delete=models.CASCADE, related_name="outgoing_relationships"
+    )
+    target_task = models.ForeignKey(
+        "Task", on_delete=models.CASCADE, related_name="incoming_relationships"
+    )
+    relationship_type = models.CharField(
+        max_length=20,
+        choices=RelationshipType.choices,
+        default=RelationshipType.RELATED,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        Worker, on_delete=models.SET_NULL, null=True, blank=True
+    )
+
+    class Meta:
+        unique_together = [("source_task", "target_task")]
+        verbose_name = "Task Relationship"
+        verbose_name_plural = "Task Relationships"
+
+    def __str__(self):
+        return f"{self.source_task} → {self.target_task} ({self.get_relationship_type_display()})"
