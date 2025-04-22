@@ -21,7 +21,53 @@
               {{ field.label }}
               {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
             </label>
-            {{ field }}
+
+            {% if field.name == 'username' or field.name == 'password1' or field.name == 'password2' %}
+              <div class="input-group">
+                <span class="input-group-text bg-light">
+                  <i class="bi {% if field.name == 'username' %}bi-person{% elif field.name == 'password1' or field.name == 'password2' %}bi-lock{% endif %}"></i>
+                </span>
+                <input
+                  type="{{ field.field.widget.input_type }}"
+                  class="form-control"
+                  id="{{ field.id_for_label }}"
+                  name="{{ field.html_name }}"
+                  {% if field.value %}value="{{ field.value }}"{% endif %}
+                  {% if field.field.required %}required{% endif %}
+                  placeholder="Enter your {{ field.label|lower }}"
+                >
+                {% if field.name == 'password1' or field.name == 'password2' %}
+                <button class="btn btn-outline-secondary" type="button" id="toggle-{{ field.name }}">
+                  <i class="bi bi-eye"></i>
+                </button>
+                {% endif %}
+              </div>
+            {% elif field.name == 'position' %}
+              <select
+                class="form-select"
+                id="{{ field.id_for_label }}"
+                name="{{ field.html_name }}"
+                {% if field.field.required %}required{% endif %}
+              >
+                <option value="" selected disabled>Select your position</option>
+                {% for value, label in field.field.choices %}
+                  {% if value %}  {# Skip empty value if exists #}
+                    <option value="{{ value }}">{{ label }}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            {% else %}
+              <input
+                type="{{ field.field.widget.input_type }}"
+                class="form-control"
+                id="{{ field.id_for_label }}"
+                name="{{ field.html_name }}"
+                {% if field.value %}value="{{ field.value }}"{% endif %}
+                {% if field.field.required %}required{% endif %}
+                placeholder="Enter your {{ field.label|lower }}"
+              >
+            {% endif %}
+
             {% if field.help_text %}
               <small class="form-text text-muted">{{ field.help_text }}</small>
             {% endif %}
@@ -67,5 +113,24 @@
     }, false)
   })
 })()
+
+// Password visibility toggle for both password fields
+document.querySelectorAll('[id^="toggle-password"]').forEach(button => {
+  button.addEventListener('click', function() {
+    const fieldId = this.id.replace('toggle-', '');
+    const passwordInput = document.getElementById('id_' + fieldId);
+    const icon = this.querySelector('i');
+
+    if (!passwordInput) return;
+
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+  });
+});
 </script>
 {% endblock %}

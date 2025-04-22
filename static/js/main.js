@@ -33,39 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('scroll', animateOnScroll);
   // Run once on page load
   animateOnScroll();
-
-  // Task completion toggle
-  var completionToggles = document.querySelectorAll('.task-completion-toggle');
-  completionToggles.forEach(function(toggle) {
-    toggle.addEventListener('change', function() {
-      var taskId = this.getAttribute('data-task-id');
-      var isCompleted = this.checked;
-
-      // Submit via fetch API
-      fetch('/tasks/toggle-completion/' + taskId + '/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-          is_completed: isCompleted
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Update UI
-          var taskElement = document.querySelector('#task-' + taskId);
-          if (isCompleted) {
-            taskElement.classList.add('completed-task');
-          } else {
-            taskElement.classList.remove('completed-task');
-          }
-        }
-      });
-    });
-  });
 });
 
 // Helper function to get cookies (for CSRF token)
@@ -82,23 +49,6 @@ function getCookie(name) {
     }
   }
   return cookieValue;
-}
-
-// Task filter form functionality
-const filterForm = document.getElementById('task-filter-form');
-if (filterForm) {
-  const clearFiltersBtn = document.getElementById('clear-filters');
-
-  clearFiltersBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    const inputs = filterForm.querySelectorAll('input, select');
-    inputs.forEach(input => {
-      if (input.type !== 'submit') {
-        input.value = '';
-      }
-    });
-    filterForm.submit();
-  });
 }
 
 // Countdown timer for task deadlines

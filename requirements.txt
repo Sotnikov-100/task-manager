@@ -4,6 +4,8 @@ click==8.1.8
 crispy-bootstrap5==2024.2
 Django==5.1.7
 django-crispy-forms==2.1
+django-model-utils==5.0.0
+dotenv==0.9.9
 gunicorn==23.0.0
 mypy-extensions==1.0.0
 packaging==24.2

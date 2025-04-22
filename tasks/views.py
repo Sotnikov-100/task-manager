@@ -1,7 +1,10 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.urls import reverse_lazy
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.views import View
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -11,8 +14,8 @@ from django.views.generic import (
     UpdateView,
 )
 
-from tasks.forms import TaskForm
-from tasks.models import Task, Worker
+from tasks.forms import TaskForm, DocumentForm, TaskRelationshipForm
+from tasks.models import Task, Worker, UserActivity, Document, TaskRelationship
 
 
 class IndexView(LoginRequiredMixin, TemplateView):
@@ -53,7 +56,17 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["tasks"] = Task.objects.filter(assignees=self.request.user)
+        user = self.request.user
+
+        tasks = Task.objects.filter(assignees=user)
+        context["tasks"] = tasks
+        context["tasks_completed"] = tasks.filter(is_completed=True).count()
+        context["tasks_pending"] = tasks.filter(is_completed=False).count()
+
+        context["user_activities"] = UserActivity.objects.filter(user=user).order_by(
+            "-timestamp"
+        )[:10]
+
         return context
 
 
@@ -109,15 +122,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
-    fields = [
-        "title",
-        "description",
-        "deadline",
-        "priority",
-        "task_type",
-        "assignees",
-        "is_completed",
-    ]
+    form_class = TaskForm
     template_name = "tasks/task_form.html"
     success_url = reverse_lazy("tasks:task-list")
 
@@ -126,3 +131,62 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
     template_name = "tasks/task_confirm_delete.html"
     success_url = reverse_lazy("tasks:task-list")
+
+
+class TaskToggleCompleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        task = Task.objects.get(pk=pk)
+        if request.user in task.assignees.all() or request.user == task.created_by:
+            task.is_completed = not task.is_completed
+            task.save()
+            return JsonResponse(
+                {
+                    "status": "success",
+                    "is_completed": task.is_completed,
+                    "task_id": task.id,
+                    "new_status": "Completed" if task.is_completed else "In Progress",
+                }
+            )
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
+
+
+class DocumentUploadView(LoginRequiredMixin, CreateView):
+    model = Document
+    form_class = DocumentForm
+    template_name = "tasks/document_upload.html"
+
+    def form_valid(self, form):
+        form.instance.task = Task.objects.get(pk=self.kwargs["pk"])
+        form.instance.uploaded_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("tasks:task-detail", kwargs={"pk": self.kwargs["pk"]})
+
+
+class TaskRelationshipCreateView(LoginRequiredMixin, CreateView):
+    model = TaskRelationship
+    form_class = TaskRelationshipForm
+    template_name = "tasks/task_relationship_form.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["source_task"] = get_object_or_404(Task, pk=self.kwargs["pk"])
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.instance.source_task = get_object_or_404(Task, pk=self.kwargs["pk"])
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("tasks:task-detail", kwargs={"pk": self.kwargs["pk"]})
+
+
+class TaskRelationshipDeleteView(LoginRequiredMixin, DeleteView):
+    model = TaskRelationship
+    template_name = "tasks/task_relationship_confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse("tasks:task-detail", kwargs={"pk": self.object.source_task.pk})

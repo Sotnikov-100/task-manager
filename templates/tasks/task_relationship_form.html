@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="container mt-4">
+    <div class="card">
+      <div class="card-header">
+        <h4>Link New Task to "{{ view.get_form_kwargs.source_task.title }}"</h4>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-link"></i> Create Link
+          </button>
+          <a href="{% url 'tasks:task-detail' view.kwargs.pk %}" class="btn btn-secondary">
+            Cancel
+          </a>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
