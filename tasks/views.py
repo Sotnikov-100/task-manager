@@ -139,15 +139,14 @@ class TaskToggleCompleteView(LoginRequiredMixin, View):
             task.is_completed = not task.is_completed
             task.save()
             return JsonResponse(
-                {"status": "success", "is_completed": task.is_completed}
+                {
+                    "status": "success",
+                    "is_completed": task.is_completed,
+                    "task_id": task.id,
+                    "new_status": "Completed" if task.is_completed else "In Progress",
+                }
             )
-        return JsonResponse(
-            {
-                "status": "error",
-                "message": "You are not authorized to update this task.",
-            },
-            status=403,
-        )
+        return JsonResponse({"status": "error", "message": "Unauthorized"}, status=403)
 
 
 class DocumentUploadView(LoginRequiredMixin, CreateView):

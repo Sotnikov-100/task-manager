@@ -24,12 +24,12 @@ urlpatterns = [
     path("tasks/<int:pk>/update/", TaskUpdateView.as_view(), name="task-update"),
     path("tasks/<int:pk>/delete/", TaskDeleteView.as_view(), name="task-delete"),
     path(
-        "task/<int:pk>/toggle-complete/",
+        "tasks/<int:pk>/toggle-complete/",
         TaskToggleCompleteView.as_view(),
         name="task-toggle-complete",
     ),
     path(
-        "task/<int:pk>/upload-document/",
+        "tasks/<int:pk>/upload-document/",
         DocumentUploadView.as_view(),
         name="document-upload",
     ),

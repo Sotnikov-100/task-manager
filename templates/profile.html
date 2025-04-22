@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}My Profile | IT Task Manager{% endblock %}
 
@@ -105,9 +106,9 @@
                 <div class="d-flex justify-content-between align-items-center mb-4">
                   <h5 class="mb-0">Assigned Tasks</h5>
                   <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-primary active">All</button>
-                    <button type="button" class="btn btn-outline-primary">Active</button>
-                    <button type="button" class="btn btn-outline-primary">Completed</button>
+                    <button type="button" class="btn btn-outline-primary active filter-btn" data-filter="all">All</button>
+                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="active">Active</button>
+                    <button type="button" class="btn btn-outline-primary filter-btn" data-filter="completed">Completed</button>
                   </div>
                 </div>
 
@@ -123,17 +124,16 @@
                         <th></th>
                       </tr>
                       </thead>
-                      <tbody>
+                      <tbody id="tasks-table-body">
                       {% for task in tasks %}
-                        <tr>
+                        <tr id="task-{{ task.id }}" class="task-row {% if task.is_completed %}table-success{% endif %}">
                           <td>
                             <a href="{% url 'tasks:task-detail' task.id %}" class="text-decoration-none">
                               {{ task.title }}
                             </a>
                           </td>
                           <td>
-                            <span
-                                class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %} task-status-badge">
                               {{ task.get_priority_display }}
                             </span>
                           </td>
@@ -150,6 +150,9 @@
                                      id="complete-task-{{ task.id }}"
                                      data-task-id="{{ task.id }}"
                                      {% if task.is_completed %}checked{% endif %}>
+                              <label class="form-check-label" for="complete-task-{{ task.id }}">
+                                {% if task.is_completed %}Completed{% else %}Active{% endif %}
+                              </label>
                             </div>
                           </td>
                           <td>
@@ -303,49 +306,5 @@
 {% endblock %}
 
 {% block extra_js %}
-  <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          // Task completion toggle functionality
-          const toggles = document.querySelectorAll('.task-completion-toggle');
-          toggles.forEach(toggle => {
-              toggle.addEventListener('change', function () {
-                  const taskId = this.dataset.taskId;
-                  const isCompleted = this.checked;
-
-                  // Send AJAX request to update task status
-                  fetch(`/tasks/${taskId}/toggle-completion/`, {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRFToken': getCookie('csrftoken')
-                      },
-                      body: JSON.stringify({is_completed: isCompleted})
-                  })
-                      .then(response => response.json())
-                      .then(data => {
-                          if (data.success) {
-                              // Show success notification
-                              console.log('Task status updated successfully');
-                          } else {
-                              // Revert toggle if request failed
-                              this.checked = !isCompleted;
-                              console.error('Failed to update task status');
-                          }
-                      })
-                      .catch(error => {
-                          // Revert toggle if request failed
-                          this.checked = !isCompleted;
-                          console.error('Error:', error);
-                      });
-              });
-          });
-
-          // Helper function to get CSRF token from cookies
-          function getCookie(name) {
-              const value = `; ${document.cookie}`;
-              const parts = value.split(`; ${name}=`);
-              if (parts.length === 2) return parts.pop().split(';').shift();
-          }
-      });
-  </script>
+<script src="{% static 'js/profile.js' %}"></script>
 {% endblock %}
