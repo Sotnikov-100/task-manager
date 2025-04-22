@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ task.title }} | Task Details{% endblock %}
 
@@ -16,11 +17,13 @@
       <div class="card-header bg-white p-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap">
           <div class="d-flex align-items-center mb-2 mb-md-0">
-            <span class="task-status-indicator status-{% if task.is_completed %}completed{% elif task.deadline < now %}overdue{% else %}active{% endif %} me-2"></span>
+            <span
+                class="task-status-indicator status-{% if task.is_completed %}completed{% elif task.deadline < now %}overdue{% else %}active{% endif %} me-2"></span>
             <h1 class="h3 mb-0">{{ task.title }}</h1>
           </div>
           <div>
-            <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %} me-2">
+            <span
+                class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %} me-2">
               {{ task.get_priority_display }}
             </span>
             <div class="btn-group" role="group">
@@ -55,7 +58,8 @@
                     <ul class="list-group list-group-flush">
                       <li class="list-group-item d-flex justify-content-between px-0">
                         <span>Status:</span>
-                        <span class="badge {% if task.is_completed %}bg-success{% else %}bg-warning{% endif %}">
+                        <span class="badge {% if task.is_completed %}bg-success{% else %}bg-warning{% endif %}"
+                              id="task-status-badge">
                           {% if task.is_completed %}Completed{% else %}In Progress{% endif %}
                         </span>
                       </li>
@@ -65,7 +69,8 @@
                       </li>
                       <li class="list-group-item d-flex justify-content-between px-0">
                         <span>Priority:</span>
-                        <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                        <span
+                            class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %}">
                           {{ task.get_priority_display }}
                         </span>
                       </li>
@@ -102,15 +107,10 @@
                     </div>
 
                     <div class="progress mb-3" style="height: 5px;">
-                      {% if task.is_completed %}
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 100%"></div>
-                      {% elif task.deadline < now %}
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: 100%"></div>
-                      {% else %}
-                        {% with time_passed=now|timeuntil:task.deadline %}
-                          <div class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
-                        {% endwith %}
-                      {% endif %}
+                      <div class="progress-bar" id="deadline-progress" role="progressbar"
+                           style="width: {% if task.is_completed %}100%{% elif task.deadline < now %}100%{% else %}50%{% endif %};
+                               background-color: {% if task.is_completed %}#198754{% elif task.deadline < now %}#dc3545{% else %}#0d6efd{% endif %}">
+                      </div>
                     </div>
 
                     <div class="form-check form-switch mt-4">
@@ -121,7 +121,7 @@
                              data-task-id="{{ task.id }}"
                              {% if task.is_completed %}checked{% endif %}>
                       <label class="form-check-label" for="complete-task-{{ task.id }}">
-                        Mark as complete
+                        Mark as {% if task.is_completed %}incomplete{% else %}complete{% endif %}
                       </label>
                     </div>
                   </div>
@@ -160,7 +160,8 @@
               </div>
               {% if user.is_staff %}
                 <div class="card-footer bg-white">
-                  <a href="{% url 'tasks:task-update' task.pk %}#assignees" class="btn btn-sm btn-outline-primary w-100">
+                  <a href="{% url 'tasks:task-update' task.pk %}#assignees"
+                     class="btn btn-sm btn-outline-primary w-100">
                     <i class="bi bi-plus-circle me-1"></i>Manage Assignees
                   </a>
                 </div>
@@ -173,12 +174,46 @@
               </div>
               <div class="card-body">
                 <div class="d-grid gap-2">
-                  <a href="#" class="btn btn-outline-secondary">
+                  <a href="{% url 'tasks:add-relation' task.pk %}" class="btn btn-outline-secondary">
                     <i class="bi bi-link-45deg me-1"></i>Link Related Task
                   </a>
-                  <a href="#" class="btn btn-outline-secondary">
+                  <a href="{% url 'tasks:document-upload' task.pk %}" class="btn btn-outline-secondary">
                     <i class="bi bi-file-earmark me-1"></i>Attach Document
                   </a>
+                </div>
+
+                <!-- Додаємо новий блок для відображення зв'язків -->
+                <div class="card mt-3">
+                  <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Task Relationships</h6>
+                    <a href="{% url 'tasks:add-relation' task.pk %}" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-plus-circle"></i> Add Link
+                    </a>
+                  </div>
+                  <div class="card-body">
+                    {% if task.outgoing_relationships.all %}
+                      <div class="list-group">
+                        {% for rel in task.outgoing_relationships.all %}
+                          <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                              <div>
+                                <span class="badge bg-info me-2">{{ rel.get_relationship_type_display }}</span>
+                                <a href="{% url 'tasks:task-detail' rel.target_task.pk %}">
+                                  {{ rel.target_task.title }}
+                                </a>
+                              </div>
+                              <a href="{% url 'tasks:delete-relation' rel.pk %}"
+                                 class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                              </a>
+                            </div>
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <p class="text-muted mb-0">No task relationships defined</p>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>
@@ -203,8 +238,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  // Current date for overdue calculation
-  const now = new Date();
-</script>
+  <script src="{% static 'js/task_detail.js' %}"></script>
 {% endblock %}

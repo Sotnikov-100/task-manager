@@ -9,7 +9,7 @@ app_name = "accounts"
 urlpatterns = [
     path("signup/", SignUpView.as_view(), name="signup"),
     path(
-        "password-change/", CustomPasswordChangeView.as_view(), name="password_change"
+        "password_change/", CustomPasswordChangeView.as_view(), name="password_change"
     ),
     path(
         "login/",
@@ -17,7 +17,6 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
-
     path(
         "password-reset/",
         auth_views.PasswordResetView.as_view(
@@ -49,5 +48,4 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
-    path("", include("django.contrib.auth.urls")),
 ]

@@ -8,6 +8,10 @@ from tasks.views import (
     TaskDetailView,
     TaskListView,
     TaskUpdateView,
+    TaskToggleCompleteView,
+    DocumentUploadView,
+    TaskRelationshipCreateView,
+    TaskRelationshipDeleteView,
 )
 
 app_name = "tasks"
@@ -21,4 +25,24 @@ urlpatterns = [
     path("tasks/<int:pk>/", TaskDetailView.as_view(), name="task-detail"),
     path("tasks/<int:pk>/update/", TaskUpdateView.as_view(), name="task-update"),
     path("tasks/<int:pk>/delete/", TaskDeleteView.as_view(), name="task-delete"),
+    path(
+        "tasks/<int:pk>/toggle-complete/",
+        TaskToggleCompleteView.as_view(),
+        name="task-toggle-complete",
+    ),
+    path(
+        "tasks/<int:pk>/upload-document/",
+        DocumentUploadView.as_view(),
+        name="document-upload",
+    ),
+    path(
+        "task/<int:pk>/add-relation/",
+        TaskRelationshipCreateView.as_view(),
+        name="add-relation",
+    ),
+    path(
+        "relation/<int:pk>/delete/",
+        TaskRelationshipDeleteView.as_view(),
+        name="delete-relation",
+    ),
 ]

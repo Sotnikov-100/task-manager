@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load query_tags %}
 
 {% block title %}All Tasks | IT Task Manager{% endblock %}
@@ -73,9 +74,9 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="tasks-table-body">
             {% for task in tasks %}
-              <tr id="task-{{ task.id }}" class="{% if task.is_completed %}table-success{% elif task.deadline < now %}table-danger{% endif %}">
+              <tr id="task-{{ task.id }}" class="task-row {% if task.is_completed %}table-success{% elif task.deadline < now %}table-danger{% endif %}">
                 <td>
                   <div class="form-check form-switch">
                     <input class="form-check-input task-completion-toggle"
@@ -84,6 +85,9 @@
                            id="complete-task-{{ task.id }}"
                            data-task-id="{{ task.id }}"
                            {% if task.is_completed %}checked{% endif %}>
+                    <label class="form-check-label" for="complete-task-{{ task.id }}">
+                      {% if task.is_completed %}Completed{% else %}Active{% endif %}
+                    </label>
                   </div>
                 </td>
                 <td>
@@ -92,7 +96,7 @@
                   </a>
                 </td>
                 <td>
-                  <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                  <span class="badge {% if task.priority == 'URGENT' %}bg-danger{% elif task.priority == 'HIGH' %}bg-warning text-dark{% else %}bg-success{% endif %} task-priority-badge">
                     {{ task.get_priority_display }}
                   </span>
                 </td>
@@ -156,8 +160,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-  // Current date for overdue calculation
-  const now = new Date();
-</script>
+  <script src="{% static 'js/task_list.js' %}"></script>
 {% endblock %}
